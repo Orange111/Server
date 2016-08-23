@@ -295,6 +295,11 @@ void Mob::MakePoweredPet(uint16 spell_id, const char* pettype, int16 petpower,
 		npc_type->max_hp += (npc_type->max_hp*MaxHP)/100;
 		npc_type->cur_hp = npc_type->max_hp;
 	}
+	
+	if (IsClient()) {
+		npc_type->max_hp += RuleR(Combat, NatedogPetHPScale) * GetCHA();
+		npc_type->cur_hp = npc_type->max_hp;
+	}
 
 	//TODO: think about regen (engaged vs. not engaged)
 

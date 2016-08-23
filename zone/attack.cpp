@@ -3075,8 +3075,10 @@ void Mob::CommonDamage(Mob* attacker, int32 &damage, const uint16 spell_id, cons
 			// if spell is lifetap add hp to the caster
 			if (spell_id != SPELL_UNKNOWN && IsLifetapSpell( spell_id )) {
 				int healed = damage;
-
-				healed = attacker->GetActSpellHealing(spell_id, healed);
+				
+				//Lifetaps do not benefit from +heal
+				//healed = attacker->GetActSpellHealing(spell_id, healed);
+				healed = healed * RuleR(Combat, NatedogLifeTap);
 				Log.Out(Logs::Detail, Logs::Combat, "Applying lifetap heal of %d to %s", healed, attacker->GetName());
 				attacker->HealDamage(healed);
 

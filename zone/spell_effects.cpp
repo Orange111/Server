@@ -5291,12 +5291,35 @@ int16 Client::GetFocusEffect(focusType type, uint16 spell_id)
 	int16 realTotal = 0;
 	int16 realTotal2 = 0;
 	int16 realTotal3 = 0;
+	int16 custom_total = 0;
 	bool rand_effectiveness = false;
 
 	//Improved Healing, Damage & Mana Reduction are handled differently in that some are random percentages
 	//In these cases we need to find the most powerful effect, so that each piece of gear wont get its own chance
 	if(RuleB(Spells, LiveLikeFocusEffects) && (type == focusManaCost || type == focusImprovedHeal || type == focusImprovedDamage || type == focusImprovedDamage2))
 		rand_effectiveness = true;
+	
+	if (type == focusFcDamagePctCrit) {
+		int class_type = GetClass();
+		if (class_type == MAGICIAN || class_type == DRUID || class_type == CLERIC || class_type == NECROMANCER || class_type == WIZARD || class_type == ENCHANTER || class_type == SHAMAN) {
+			float caster_bonus_mod = RuleR(Combat, NatedogCasterBonus);
+			if (caster_bonus_mod) {
+				custom_total += (RuleR(Combat, NatedogSpellDMGScale) + caster_bonus_mod) * GetINT() ;
+			} else {
+				custom_total += RuleR(Combat, NatedogSpellDMGScale) * GetINT();
+			}
+		} else {
+			custom_total += RuleR(Combat, NatedogSpellDMGScale) * GetINT();
+		}
+	}
+	
+	if (IsBardSong(spell_id) && type == focusFcBaseEffects) {
+		custom_total += RuleR(Combat, NatedogBardSongs) * GetDEX();
+	}
+	
+	if (type == focusImprovedHeal) {
+		custom_total += RuleR(Combat, NatedogHealScale) * GetWIS();
+	}
 
 	//Check if item focus effect exists for the client.
 	if (itembonuses.FocusEffects[type]){
@@ -5554,7 +5577,7 @@ int16 Client::GetFocusEffect(focusType type, uint16 spell_id)
 	if (RuleB(Spells, UseAdditiveFocusFromWornSlot))
 		worneffect_bonus = itembonuses.FocusEffectsWorn[type];
 
-	return realTotal + realTotal2 + realTotal3 + worneffect_bonus;
+	return realTotal + realTotal2 + realTotal3 + worneffect_bonus + custom_total;
 }
 
 int16 NPC::GetFocusEffect(focusType type, uint16 spell_id) {

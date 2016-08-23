@@ -328,7 +328,14 @@ int32 Mob::GetActSpellHealing(uint16 spell_id, int32 value, Mob* target) {
 		if(chance && zone->random.Roll(chance))
 			value *= 2;
 	}
-
+	
+	if (IsNPC() && GetOwner() && GetOwner()->IsClient()) {
+		value += value * (GetOwner()->GetCHA() * RuleR(Combat, NatedogPetSpells));
+	}
+	else if (IsNPC() && CastToNPC()->GetSwarmInfo() && CastToNPC()->GetSwarmInfo()->GetOwner() && CastToNPC()->GetSwarmInfo()->GetOwner()->IsClient()) {
+		value += value * (CastToNPC()->GetSwarmInfo()->GetOwner()->GetCHA() * RuleR(Combat, NatedogPetSpells));
+	}
+	
 	if (IsNPC() && CastToNPC()->GetHealScale())
 		value = int(static_cast<float>(value) * CastToNPC()->GetHealScale() / 100.0f);
 

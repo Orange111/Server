@@ -96,6 +96,11 @@ void Mob::TemporaryPets(uint16 spell_id, Mob *targ, const char *name_override, u
 		glm::vec2(10, 10), glm::vec2(-10, 10), glm::vec2(10, -10), glm::vec2(-10, -10),
 		glm::vec2(8, 8), glm::vec2(-8, 8), glm::vec2(8, -8), glm::vec2(-8, -8)
 	};
+	
+	if (IsClient()) {
+		made_npc->max_hp += RuleR(Combat, NatedogPetHPScale) * GetCHA();
+		made_npc->cur_hp = npc_type->max_hp;
+	}
 
 	while(summon_count > 0) {
 		int pet_duration = pet.duration;
